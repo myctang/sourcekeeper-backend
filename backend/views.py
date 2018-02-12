@@ -1,36 +1,38 @@
-from django.shortcuts import render
-from django.contrib.auth.models import User, Group
-from rest_framework import viewsets
+from backend.serializers import SourceSerializers, UserSerializers
+from backend.models import Source
+from rest_framework.authentication import SessionAuthentication
+from django.contrib.auth import authenticate, login
+
+from django_filters.rest_framework import DjangoFilterBackend
+
 from rest_framework import mixins
 from rest_framework import generics
+from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
-from backend.serializers import UserSerializers, SourceSerializers
-from backend.models import Source
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+
+    def enforce_csrf(self, request):
+        return  # To not perform the csrf check previously happening
 
 
-class SourceList(mixins.ListModelMixin,
-                  mixins.CreateModelMixin,
-                  generics.GenericAPIView):
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
+class SourceList(generics.ListCreateAPIView):
+    authentication_classes = (TokenAuthentication, CsrfExemptSessionAuthentication)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Source.objects.all()
     serializer_class = SourceSerializers
-
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
+    filter_backends = (DjangoFilterBackend,)
+    filter_fields = ('tags', 'color', 'author', 'language',)
 
 
 class SourceDetail(mixins.RetrieveModelMixin,
                     mixins.UpdateModelMixin,
                     mixins.DestroyModelMixin,
                     generics.GenericAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Source.objects.all()
     serializer_class = SourceSerializers
 
