@@ -35,10 +35,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'backend',
+    'django.contrib.postgres',
     'rest_framework',
     'rest_framework.authtoken',
+    'backend',
     'djoser',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -49,10 +51,14 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'backend.utils.DisableCSRF',
 ]
 
 ROOT_URLCONF = 'sourcekeeperBackend.urls'
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 TEMPLATES = [
     {
@@ -69,6 +75,9 @@ TEMPLATES = [
         },
     },
 ]
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 
 WSGI_APPLICATION = 'sourcekeeperBackend.wsgi.application'
 

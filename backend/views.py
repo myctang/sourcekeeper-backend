@@ -1,6 +1,7 @@
 from backend.serializers import SourceSerializers
 from backend.models import Source
 from django.contrib.auth import authenticate, login
+from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -25,10 +26,12 @@ class SourceList(generics.ListCreateAPIView):
     def get_queryset(self):
         print()
         queryset = Source.objects.all()
-        tag = self.request.query_params.get('tags', None)
-        print(Source.objects.filter(tags__name=tag))
-        if tag is not None:
-            queryset = Source.objects.filter(tags__name=tag)
+        search = self.request.query_params.get('search', None)
+        if search is not None:
+            print(Source.objects.annotate(search=SearchVector('title', 'author', 'language', 'color', 'tags__name')).filter(search=search))
+            vector = SearchVector('title', 'author', 'language', 'color', 'tags__name')
+            query = SearchQuery(search)
+            queryset = Source.objects.annotate(rank=SearchRank(vector, query)).order_by('-rank')
             return queryset
         return queryset
 

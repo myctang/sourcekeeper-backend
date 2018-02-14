@@ -17,7 +17,9 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls import include, url
 from rest_framework.authtoken.views import obtain_auth_token
+from django.views.static import serve
 from backend import views
+from sourcekeeperBackend import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,4 +30,5 @@ urlpatterns = [
     url(r'^auth/', include('djoser.urls.authtoken')),
     url('^accounts/', include('django.contrib.auth.urls')),
     url('^login/', views.Login.as_view()),
+    url(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
