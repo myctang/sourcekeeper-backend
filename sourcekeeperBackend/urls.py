@@ -19,16 +19,15 @@ from django.conf.urls import include, url
 from rest_framework.authtoken.views import obtain_auth_token
 from django.views.static import serve
 from backend import views
-from sourcekeeperBackend import settings
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    url(r'sources', include('backend.urls')),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^api-token-auth', obtain_auth_token),
-    url(r'^auth/', include('djoser.urls')),
-    url(r'^auth/', include('djoser.urls.authtoken')),
-    url('^accounts/', include('django.contrib.auth.urls')),
+    url(r'sources/', include('backend.urls')),
+    url(r'^accounts/', include('djoser.urls')),
+    url(r'^accounts/', include('django.contrib.auth.urls')),
     url('^login/', views.Login.as_view()),
+    url(r'^$', views.index),
     url(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

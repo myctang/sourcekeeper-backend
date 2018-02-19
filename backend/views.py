@@ -12,6 +12,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from django.shortcuts import render_to_response
 
 
 class SourceList(generics.ListCreateAPIView):
@@ -20,7 +21,7 @@ class SourceList(generics.ListCreateAPIView):
     queryset = Source.objects.all()
     serializer_class = SourceSerializers
     filter_backends = (DjangoFilterBackend,)
-    filter_fields = ('color', 'author', 'language',)
+    filter_fields = ('color', 'author', 'language', 'category', )
 
 
     def get_queryset(self):
@@ -28,8 +29,8 @@ class SourceList(generics.ListCreateAPIView):
         queryset = Source.objects.all()
         search = self.request.query_params.get('search', None)
         if search is not None:
-            print(Source.objects.annotate(search=SearchVector('title', 'author', 'language', 'color', 'tags__name')).filter(search=search))
-            vector = SearchVector('title', 'author', 'language', 'color', 'tags__name')
+            print(Source.objects.annotate(search=SearchVector('title', 'author', 'language', 'color', 'tags')).filter(search=search))
+            vector = SearchVector('title', 'author', 'language', 'color', 'tags')
             query = SearchQuery(search)
             queryset = Source.objects.annotate(rank=SearchRank(vector, query)).order_by('-rank')
             return queryset
@@ -59,8 +60,11 @@ class Login(APIView):
         password = request.POST.get('password')
         user = authenticate(username=username, password=password)
         if user is not None:
-
             if user.is_active:
                 login(request, user)
                 return Response("Success", status=status.HTTP_202_ACCEPTED)
         return Response("Unsuccess", status=status.HTTP_406_NOT_ACCEPTABLE)
+
+def index(request):
+    print("asd")
+    return render_to_response('backend/static/index.html')
