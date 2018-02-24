@@ -7,13 +7,18 @@ from django.template import TemplateDoesNotExist
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, mixins, status
 from rest_framework.authentication import SessionAuthentication
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from backend.models import Source
 from backend.serializers import SourceSerializers
 
+class LoginCheck(APIView):
+    authentication_classes = (SessionAuthentication, )
+    permission_classes = (IsAuthenticated,)
+    def get(self, request, *args, **kwargs):
+        return 'Success'
 
 class SourceList(generics.ListCreateAPIView):
     authentication_classes = (SessionAuthentication, )
