@@ -18,7 +18,7 @@ class LoginCheck(APIView):
     authentication_classes = (SessionAuthentication, )
     permission_classes = (IsAuthenticated,)
     def get(self, request, *args, **kwargs):
-        return 'Success'
+        return Response('Success')
 
 class SourceList(generics.ListCreateAPIView):
     authentication_classes = (SessionAuthentication, )
@@ -27,16 +27,16 @@ class SourceList(generics.ListCreateAPIView):
     serializer_class = SourceSerializers
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ('color', 'author', 'language', 'category', )
+    pagination_class = None
 
 
     def get_queryset(self):
         queryset = Source.objects.all()
         search = self.request.query_params.get('search', None)
         if search is not None:
-            print(Source.objects.annotate(search=SearchVector('title', 'author', 'language', 'color', 'tags')).filter(search=search))
             vector = SearchVector('title', 'author', 'language', 'color', 'tags')
             query = SearchQuery(search)
-            queryset = Source.objects.annotate(rank=SearchRank(vector, query)).order_by('-rank')
+            queryset = Source.objects.annotate(rank=SearchRank(vector, query)).annotate(search=vector).filter(search=query).order_by('-rank')
             return queryset
         
         return queryset
