@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.postgres',
     'rest_framework',
+    'django_filters',
     'rest_framework.authtoken',
     'backend',
     'djoser',
@@ -93,9 +94,9 @@ WSGI_APPLICATION = 'sourcekeeperBackend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'test',
-        'USER': 'new',
-        'PASSWORD': 'password',
+        'NAME': 'sourcekeeper',
+        'USER': 'ArtyomMatantsev',
+        'PASSWORD': '',
         'HOST': 'localhost',
         'PORT': '5432',
     }

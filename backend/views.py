@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.postgres.search import (SearchQuery, SearchRank,
                                             SearchVector)
 from django.shortcuts import Http404, redirect, render, render_to_response
@@ -25,7 +25,6 @@ class SourceList(generics.ListCreateAPIView):
 
 
     def get_queryset(self):
-        print()
         queryset = Source.objects.all()
         search = self.request.query_params.get('search', None)
         if search is not None:
@@ -34,6 +33,7 @@ class SourceList(generics.ListCreateAPIView):
             query = SearchQuery(search)
             queryset = Source.objects.annotate(rank=SearchRank(vector, query)).order_by('-rank')
             return queryset
+        
         return queryset
 
 
@@ -66,6 +66,11 @@ class Login(APIView):
                 login(request, user)
                 return Response("Success", status=status.HTTP_202_ACCEPTED)
         return Response("Unsuccess", status=status.HTTP_406_NOT_ACCEPTABLE)
+
+class Logout(APIView):
+    def get(self, request, format=None):
+        logout(request)
+        return Response("Success", status=status.HTTP_202_ACCEPTED)
 
 def index(request):
     print("asd")
