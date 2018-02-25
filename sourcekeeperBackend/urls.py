@@ -28,6 +28,7 @@ urlpatterns = [
     url(r'^auth/login', views.Login.as_view()),
     url(r'^auth/logout', views.Logout.as_view()),
     url(r'^%s(?P<path>.*)$' % settings.STATIC_URL.lstrip('/'), serve, {'document_root': settings.STATIC_ROOT}),
+    url(r'^auth/me', views.LoginCheck.as_view()),
     url(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     url(r'^/?(?P<path>.*)?$', views.render_template),
 ]
