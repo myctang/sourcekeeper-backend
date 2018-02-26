@@ -14,6 +14,8 @@ from rest_framework.views import APIView
 from backend.models import Source
 from backend.serializers import SourceSerializers
 
+import re
+
 class LoginCheck(APIView):
     authentication_classes = (SessionAuthentication, )
     permission_classes = (IsAuthenticated,)
@@ -36,7 +38,10 @@ class SourceList(generics.ListCreateAPIView):
         if search is not None:
             vector = SearchVector('title', 'author', 'language', 'color', 'tags')
             query = SearchQuery(search)
-            queryset = Source.objects.annotate(rank=SearchRank(vector, query)).annotate(search=vector).filter(search=query).order_by('-rank')
+            print(vector)
+            print()
+            # queryset = Source.objects.annotate(rank=SearchRank(vector, query)).annotate(search=vector).filter(search=query).order_by('-rank')
+            queryset = Source.objects.extra(where=["to_tsvector(COALESCE(\"backend_source\".\"title\" ) || \' \' || COALESCE(\"backend_source\".\"author\" ) || \' \' || COALESCE(\"backend_source\".\"language\" ) || \' \' || COALESCE(\"backend_source\".\"color\" ) || \' \' || COALESCE(\"backend_source\".\"tags\" )) @@ to_tsquery(\'%s\')" % (process_query(search))])
             return queryset
         
         return queryset
@@ -95,3 +100,17 @@ def render_template(request, path):
         return render(request, templates, {'request': request})
     except TemplateDoesNotExist:
         raise Http404('%s can not be found' % request.path)
+
+def process_query(s):
+    """
+    Converts the user's search string into something suitable for passing to
+    to_tsquery.
+    """
+    query = re.sub(r'[!\'()|&]', ' ', s).strip()
+    if query:
+        query = re.sub(r'\s+', ' & ', query)
+        # Support prefix search on the last word. A tsquery of 'toda:*' will
+        # match against any words that start with 'toda', which is good for
+        # search-as-you-type.
+        query += ':*'
+    return query
