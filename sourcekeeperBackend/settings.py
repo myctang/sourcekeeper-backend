@@ -94,9 +94,9 @@ WSGI_APPLICATION = 'sourcekeeperBackend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'sourcekeeper',
-        'USER': 'ArtyomMatantsev',
-        'PASSWORD': '',
+        'NAME': 'test',
+        'USER': 'new',
+        'PASSWORD': 'password',
         'HOST': 'localhost',
         'PORT': '5432',
     }

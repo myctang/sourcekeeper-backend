@@ -12,4 +12,4 @@ class SourceSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = Source
-        fields = ('id', 'title', 'author', 'language', 'color', 'isFile', 'url', 'category', 'file', 'tags')
+        fields = ('id', 'title', 'author', 'color', 'isFile', 'url', 'category', 'file', 'tags')

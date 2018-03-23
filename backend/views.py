@@ -28,22 +28,20 @@ class SourceList(generics.ListCreateAPIView):
     queryset = Source.objects.all()
     serializer_class = SourceSerializers
     filter_backends = (DjangoFilterBackend,)
-    filter_fields = ('color', 'author', 'language', 'category', )
+    filter_fields = ('color', 'author', 'category', )
     pagination_class = None
 
 
     def get_queryset(self):
         queryset = Source.objects.all()
         search = self.request.query_params.get('search', None)
-        if search is not None:
-            vector = SearchVector('title', 'author', 'language', 'color', 'tags')
+        if (search is not None) and (search != ""):
+            vector = SearchVector('title', 'author', 'color', 'tags')
             query = SearchQuery(search)
-            print(vector)
-            print()
-            # queryset = Source.objects.annotate(rank=SearchRank(vector, query)).annotate(search=vector).filter(search=query).order_by('-rank')
-            queryset = Source.objects.extra(where=["to_tsvector(COALESCE(\"backend_source\".\"title\" ) || \' \' || COALESCE(\"backend_source\".\"author\" ) || \' \' || COALESCE(\"backend_source\".\"language\" ) || \' \' || COALESCE(\"backend_source\".\"color\" ) || \' \' || COALESCE(\"backend_source\".\"tags\" )) @@ to_tsquery(\'%s\')" % (process_query(search))])
+            print(Source.objects.extra(where=["to_tsvector(COALESCE(\"backend_source\".\"title\" ) || \' \' || COALESCE(\"backend_source\".\"author\" ) || \' \' || COALESCE(\"backend_source\".\"color\" ) || \' \' || COALESCE(\"backend_source\".\"tags\" )) @@ to_tsquery(\'%s\')" % (process_query(search))]).query)
+            print(Source.objects.extra(where=["to_tsvector(COALESCE(\"backend_source\".\"title\" ) || \' \' || COALESCE(\"backend_source\".\"author\" ) || \' \' || COALESCE(\"backend_source\".\"color\" ) || \' \' || COALESCE(\"backend_source\".\"tags\" )) @@ to_tsquery(\'%s\')" % (process_query(search))]))
+            queryset = Source.objects.extra(where=["to_tsvector(COALESCE(\"backend_source\".\"title\" ) || \' \' || COALESCE(\"backend_source\".\"author\" ) || \' \' || COALESCE(\"backend_source\".\"color\" ) || \' \' || COALESCE(\"backend_source\".\"tags\" )) @@ to_tsquery(\'%s\')" % (process_query(search))])
             return queryset
-        
         return queryset
 
 
